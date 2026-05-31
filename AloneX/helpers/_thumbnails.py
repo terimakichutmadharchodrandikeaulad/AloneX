@@ -17,8 +17,21 @@ class Thumbnail:
         self.rect = (914, 514)
         self.fill = (255, 255, 255)
         self.mask = Image.new("L", self.rect, 0)
-        self.font1 = ImageFont.truetype("AloneX/helpers/Raleway-Bold.ttf", 30)
-        self.font2 = ImageFont.truetype("AloneX/helpers/Inter-Light.ttf", 30)
+        try:
+            self.font1 = ImageFont.truetype("AloneX/helpers/Raleway-Bold.ttf", 30)
+        except OSError:
+            try:
+                self.font1 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 30)
+            except OSError:
+                self.font1 = ImageFont.load_default()
+
+        try:
+            self.font2 = ImageFont.truetype("AloneX/helpers/Inter-Light.ttf", 30)
+        except OSError:
+            try:
+                self.font2 = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
+            except OSError:
+                self.font2 = ImageFont.load_default()
 
     async def save_thumb(self, output_path: str, url: str) -> str:
         async with aiohttp.ClientSession() as session:
