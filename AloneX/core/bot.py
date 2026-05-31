@@ -10,15 +10,17 @@ from AloneX import config, logger
 
 class Bot(pyrogram.Client):
     def __init__(self, bot_token: str = None):
-        super().__init__(
-            name="AloneX" if not bot_token else f"Clone_{bot_token.split(':')[0]}",
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            bot_token=bot_token or config.BOT_TOKEN,
-            parse_mode=pyrogram.enums.ParseMode.HTML,
-            max_concurrent_transmissions=7,
-            link_preview_options=pyrogram.types.LinkPreviewOptions(is_disabled=True),
-        )
+        kwargs = {
+            "name": "AloneX" if not bot_token else f"Clone_{bot_token.split(':')[0]}",
+            "api_id": config.API_ID,
+            "api_hash": config.API_HASH,
+            "bot_token": bot_token or config.BOT_TOKEN,
+            "parse_mode": pyrogram.enums.ParseMode.HTML,
+            "max_concurrent_transmissions": 7,
+        }
+        if hasattr(pyrogram.types, "LinkPreviewOptions"):
+            kwargs["link_preview_options"] = pyrogram.types.LinkPreviewOptions(is_disabled=True)
+        super().__init__(**kwargs)
         self.owner = config.OWNER_ID
         self.logger = config.LOGGER_ID
         self.bl_users = pyrogram.filters.user()
