@@ -9,12 +9,12 @@ from AloneX import config, logger
 
 
 class Bot(pyrogram.Client):
-    def __init__(self):
+    def __init__(self, bot_token: str = None):
         super().__init__(
-            name="AloneX",
+            name="AloneX" if not bot_token else f"Clone_{bot_token.split(':')[0]}",
             api_id=config.API_ID,
             api_hash=config.API_HASH,
-            bot_token=config.BOT_TOKEN,
+            bot_token=bot_token or config.BOT_TOKEN,
             parse_mode=pyrogram.enums.ParseMode.HTML,
             max_concurrent_transmissions=7,
             link_preview_options=pyrogram.types.LinkPreviewOptions(is_disabled=True),

@@ -43,6 +43,8 @@ class MongoDB:
         self.users = []
         self.usersdb = self.db.users
 
+        self.clonesdb = self.db.clones
+
     async def connect(self) -> None:
         """Check if we can connect to the database.
 
@@ -294,6 +296,42 @@ class MongoDB:
             self.users.extend([user["_id"] async for user in self.usersdb.find()])
         return self.users
 
+    # CLONE METHODS
+    async def add_clone(self, owner_id: int, bot_token: str):
+        return await self.clonesdb.update_one(
+            {"owner_id": owner_id},
+            {
+                "$set": {
+                    "bot_token": bot_token,
+                    "status": "active",
+                    "is_premium": False,
+                    "update_channel": config.SUPPORT_CHANNEL,
+                    "assistant_id": 1,
+                    "updated_at": time(),
+                },
+                "$setOnInsert": {"created_at": time()},
+            },
+            upsert=True,
+        )
+
+    async def get_clone(self, owner_id: int):
+        return await self.clonesdb.find_one({"owner_id": owner_id})
+
+    async def get_clones(self):
+        return [clone async for clone in self.clonesdb.find({"status": "active"})]
+
+    async def rm_clone(self, owner_id: int):
+        return await self.clonesdb.delete_one({"owner_id": owner_id})
+
+    async def update_clone_settings(self, owner_id: int, **kwargs):
+        kwargs["updated_at"] = time()
+        return await self.clonesdb.update_one(
+            {"owner_id": owner_id}, {"$set": kwargs}
+        )
+
+    async def is_clone_premium(self, owner_id: int) -> bool:
+        clone = await self.get_clone(owner_id)
+        return clone.get("is_premium", False) if clone else False
 
     async def migrate_coll(self) -> None:
         from bson import ObjectId

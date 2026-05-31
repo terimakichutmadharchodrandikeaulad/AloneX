@@ -23,6 +23,9 @@ async def main():
         importlib.import_module(f"AloneX.plugins.{module}")
     logger.info(f"Loaded {len(all_modules)} modules.")
 
+    from AloneX.plugins.clones import start_clones
+    asyncio.create_task(start_clones())
+
     if config.COOKIES_URL:
         await yt.save_cookies(config.COOKIES_URL)
 
