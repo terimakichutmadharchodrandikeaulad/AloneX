@@ -40,10 +40,18 @@ class Bot(pyrogram.Client):
         self.mention = self.me.mention
 
         try:
+            await self.get_chat(self.logger)
             await self.send_message(self.logger, "Bot Started")
             get = await self.get_chat_member(self.logger, self.id)
         except Exception as ex:
-            raise SystemExit(f"Bot has failed to access the log group: {self.logger}\nReason: {ex}")
+            raise SystemExit(
+                f"Bot has failed to access the log group: {self.logger}\n"
+                f"Reason: {ex}\n\n"
+                "Please make sure:\n"
+                "1. The LOGGER_ID is correct.\n"
+                "2. The bot is an admin in the log group.\n"
+                "3. You have sent a message or mentioned the bot in the group."
+            )
 
         if get.status != pyrogram.enums.ChatMemberStatus.ADMINISTRATOR:
             raise SystemExit("Please promote the bot as an admin in logger group.")
