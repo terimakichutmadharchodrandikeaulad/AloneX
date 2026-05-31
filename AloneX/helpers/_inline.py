@@ -2,14 +2,26 @@
 # Licensed under the MIT License.
 # This file is part of AloneXMusic
 
+import inspect
 from pyrogram import types
-from pyrogram.enums import ButtonStyle
+try:
+    from pyrogram.enums import ButtonStyle
+except ImportError:
+    class ButtonStyle:
+        PRIMARY = SUCCESS = DANGER = DEFAULT = None
+
 from AloneX import config
 
 class Inline:
     def __init__(self):
         self.ikm = types.InlineKeyboardMarkup
-        self.ikb = types.InlineKeyboardButton
+        self._ikb = types.InlineKeyboardButton
+        self._ikb_sig = inspect.signature(self._ikb.__init__)
+
+    def ikb(self, *args, **kwargs):
+        if "style" in kwargs and "style" not in self._ikb_sig.parameters:
+            kwargs.pop("style")
+        return self._ikb(*args, **kwargs)
 
     def start_key(self, lang: dict, private: bool = False) -> types.InlineKeyboardMarkup:
         rows = [
