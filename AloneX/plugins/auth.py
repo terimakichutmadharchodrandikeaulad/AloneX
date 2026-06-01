@@ -20,7 +20,7 @@ async def _auth(client, m: types.Message):
         return await m.reply_text(m.lang["user_not_found"])
 
     if m.command[0] == "auth":
-        if await is_admin(m.chat.id, user.id):
+        if await is_admin(m.chat.id, user.id, client=client):
             return await m.reply_text(m.lang["auth_is_admin"])
 
         await db.add_auth(m.chat.id, user.id)
@@ -41,5 +41,5 @@ async def _admincache(client, m: types.Message):
 
     rel_hist[m.from_user.id] = time.time() + 600
     sent = await m.reply_text(m.lang["admin_cache_reloading"])
-    await db.get_admins(m.chat.id, reload=True)
+    await db.get_admins(m.chat.id, reload=True, client=client)
     await sent.edit_text(m.lang["admin_cache_reloaded"])

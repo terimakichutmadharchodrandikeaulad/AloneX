@@ -145,6 +145,14 @@ async def edit_clone_settings_cb(client, query: types.CallbackQuery):
 
             bot_id = clone.get("bot_id")
             if not bot_id:
+                bot_token = clone.get("bot_token")
+                if bot_token:
+                    try:
+                        bot_id = int(bot_token.split(":")[0])
+                    except:
+                        pass
+
+            if not bot_id:
                 return await query.message.reply_text("<b>❌ 𝐂ℓσиє вσт ɪᴅ иσт ғσυиᴅ!</b>")
 
             ub = await userbot.start_custom_assistant(bot_id, api_id, api_hash, session)
