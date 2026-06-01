@@ -107,8 +107,8 @@ async def vc_watcher(sleep=15):
     while True:
         await asyncio.sleep(sleep)
         for chat_id in list(db.active_calls):
-            client = await db.get_assistant(chat_id)
             media = queue.get_current(chat_id)
+            client = await db.get_assistant(chat_id, media.bot_id if media else None)
             participants = await client.get_participants(chat_id)
             if len(participants) < 2 and media.time > 30:
                 _lang = await lang.get_lang(chat_id)

@@ -123,8 +123,15 @@ class MongoDB:
         self.assistant[chat_id] = num
         return num
 
-    async def get_assistant(self, chat_id: int):
-        from AloneX import anon
+    async def get_assistant(self, chat_id: int, bot_id: int = None):
+        from AloneX import anon, app, userbot
+
+        if bot_id and bot_id != app.id:
+            clone = await self.get_clone_by_bot_id(bot_id)
+            if clone and clone.get("assistant_id"):
+                num = clone["assistant_id"]
+                if num <= len(userbot.clients):
+                    return anon.clients[num - 1]
 
         if chat_id not in self.assistant:
             doc = await self.assistantdb.find_one({"_id": chat_id})
@@ -133,7 +140,14 @@ class MongoDB:
 
         return anon.clients[self.assistant[chat_id] - 1]
 
-    async def get_client(self, chat_id: int):
+    async def get_client(self, chat_id: int, bot_id: int = None):
+        from AloneX import app, userbot
+        if bot_id and bot_id != app.id:
+            clone = await self.get_clone_by_bot_id(bot_id)
+            if clone and clone.get("assistant_id"):
+                num = clone["assistant_id"]
+                return {1: userbot.one, 2: userbot.two, 3: userbot.three}.get(num)
+
         if chat_id not in self.assistant:
             await self.get_assistant(chat_id)
         return {1: userbot.one, 2: userbot.two, 3: userbot.three}.get(
@@ -297,11 +311,12 @@ class MongoDB:
         return self.users
 
     # CLONE METHODS
-    async def add_clone(self, owner_id: int, bot_token: str):
+    async def add_clone(self, owner_id: int, bot_token: str, bot_id: int):
         return await self.clonesdb.update_one(
             {"owner_id": owner_id},
             {
                 "$set": {
+                    "bot_id": bot_id,
                     "bot_token": bot_token,
                     "status": "active",
                     "update_channel": config.SUPPORT_CHANNEL,
@@ -315,6 +330,9 @@ class MongoDB:
             },
             upsert=True,
         )
+
+    async def get_clone_by_bot_id(self, bot_id: int):
+        return await self.clonesdb.find_one({"bot_id": bot_id})
 
     async def get_premium_users(self):
         return [clone async for clone in self.clonesdb.find({"is_premium": True})]

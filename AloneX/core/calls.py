@@ -18,18 +18,18 @@ class TgCall(PyTgCalls):
     def __init__(self):
         self.clients = []
 
-    async def pause(self, chat_id: int) -> bool:
-        client = await db.get_assistant(chat_id)
+    async def pause(self, chat_id: int, bot_id: int = None) -> bool:
+        client = await db.get_assistant(chat_id, bot_id)
         await db.playing(chat_id, paused=True)
         return await client.pause(chat_id)
 
-    async def resume(self, chat_id: int) -> bool:
-        client = await db.get_assistant(chat_id)
+    async def resume(self, chat_id: int, bot_id: int = None) -> bool:
+        client = await db.get_assistant(chat_id, bot_id)
         await db.playing(chat_id, paused=False)
         return await client.resume(chat_id)
 
-    async def stop(self, chat_id: int) -> None:
-        client = await db.get_assistant(chat_id)
+    async def stop(self, chat_id: int, bot_id: int = None) -> None:
+        client = await db.get_assistant(chat_id, bot_id)
         try:
             queue.clear(chat_id)
             await db.remove_call(chat_id)
@@ -49,7 +49,7 @@ class TgCall(PyTgCalls):
         media: Media | Track,
         seek_time: int = 0,
     ) -> None:
-        client = await db.get_assistant(chat_id)
+        client = await db.get_assistant(chat_id, media.bot_id)
         _lang = await lang.get_lang(chat_id)
         _thumb = (
             await thumb.generate(media)
@@ -137,6 +137,8 @@ class TgCall(PyTgCalls):
             return
 
         media = queue.get_current(chat_id)
+        if not media:
+            return
         _lang = await lang.get_lang(chat_id)
         from AloneX.plugins.clones import CLONE_BOTS
         bot = (
@@ -154,10 +156,13 @@ class TgCall(PyTgCalls):
 
     async def play_next(self, chat_id: int) -> None:
         media = queue.get_next(chat_id)
+        if not media:
+            return await self.stop(chat_id)
+
         from AloneX.plugins.clones import CLONE_BOTS
         bot = (
             app
-            if not media or not media.bot_id or media.bot_id == app.id
+            if not media.bot_id or media.bot_id == app.id
             else (
                 [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
                 if any(c.id == media.bot_id for c in CLONE_BOTS.values())
