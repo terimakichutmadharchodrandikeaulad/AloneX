@@ -12,7 +12,11 @@ class Config:
         self.BOT_TOKEN = getenv("BOT_TOKEN", "Apna Bot Token")
         self.MONGO_URL = getenv("MONGO_URL", "Apna Mongo Db Dalo")
 
-        self.LOGGER_ID = int(getenv("LOGGER_ID", "Apna Log Group Id Dalo"))
+        try:
+            self.LOGGER_ID = int(getenv("LOGGER_ID"))
+        except:
+            self.LOGGER_ID = None
+
         self.OWNER_ID = int(getenv("OWNER_ID", "Owner I'd dalo"))
         
         self.SESSION1 = getenv("SESSION", "Apna String Dalo")
@@ -40,7 +44,7 @@ class Config:
     def check(self):
         missing = [
             var
-            for var in ["API_ID", "API_HASH", "BOT_TOKEN", "MONGO_URL", "LOGGER_ID", "OWNER_ID", "SESSION1"]
+            for var in ["API_ID", "API_HASH", "BOT_TOKEN", "MONGO_URL", "OWNER_ID", "SESSION1"]
             if not getattr(self, var)
         ]
         if missing:
