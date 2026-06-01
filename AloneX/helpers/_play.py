@@ -51,6 +51,8 @@ def checkUB(play):
             try:
                 await client.get_chat(chat_id)
                 try:
+                    if assistant.username:
+                        await client.resolve_peer(assistant.username)
                     await client.get_users(assistant.id)
                 except:
                     pass
@@ -74,7 +76,7 @@ def checkUB(play):
                         )
             except errors.ChatAdminRequired:
                 return await m.reply_text(m.lang["admin_required"])
-            except (errors.UserNotParticipant, errors.exceptions.bad_request_400.UserNotParticipant):
+            except (errors.UserNotParticipant, errors.exceptions.bad_request_400.UserNotParticipant, errors.PeerIdInvalid):
                 if m.chat.username:
                     invite_link = m.chat.username
                     try:
