@@ -17,6 +17,7 @@ class Userbot(Client):
         Each client is assigned a unique name based on the key in the `clients` dictionary.
         """
         self.clients = []
+        self.custom_clients = {}
         clients = {"one": "SESSION1", "two": "SESSION2", "three": "SESSION3"}
         for key, string_key in clients.items():
             name = f"AloneXUB{key[-1]}"
@@ -77,6 +78,28 @@ class Userbot(Client):
             pass
         logger.info(f"Assistant {num} started as @{client.username}")
 
+    async def start_custom_assistant(self, bot_id: int, api_id: int, api_hash: str, session: str):
+        if bot_id in self.custom_clients:
+            try:
+                await self.custom_clients[bot_id].stop()
+            except:
+                pass
+
+        client = Client(
+            name=f"Assistant_{bot_id}",
+            api_id=api_id,
+            api_hash=api_hash,
+            session_string=session,
+        )
+        await client.start()
+        client.id = client.me.id
+        client.name = client.me.first_name
+        client.username = client.me.username
+        client.mention = client.me.mention
+
+        self.custom_clients[bot_id] = client
+        return client
+
     async def boot(self):
         """
         Asynchronously starts the assistants.
@@ -98,4 +121,9 @@ class Userbot(Client):
             await self.two.stop()
         if self.three:
             await self.three.stop()
+        for client in self.custom_clients.values():
+            try:
+                await client.stop()
+            except:
+                pass
         logger.info("Assistants stopped.")

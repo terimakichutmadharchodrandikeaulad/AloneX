@@ -5,7 +5,7 @@
 
 import re
 
-from pyrogram import filters, types
+from pyrogram import filters, types, enums
 
 from AloneX import anon, app, db, lang, queue, tg, yt
 from AloneX.helpers import admin_check, buttons, can_manage_vc
@@ -114,6 +114,21 @@ async def _controls(client, query: types.CallbackQuery):
         )
     except:
         pass
+
+
+@app.on_callback_query(filters.regex("start_menu") & ~app.bl_users)
+@lang.language()
+async def start_menu_cb(client, query: types.CallbackQuery):
+    private = query.message.chat.type == enums.ChatType.PRIVATE
+    _text = (
+        query.lang["start_pm"].format(query.from_user.first_name, client.name)
+        if private
+        else query.lang["start_gp"].format(client.name)
+    )
+    await query.edit_message_caption(
+        caption=_text,
+        reply_markup=buttons.start_key(query.lang, private),
+    )
 
 
 @app.on_callback_query(filters.regex("help") & ~app.bl_users)

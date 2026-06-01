@@ -79,6 +79,22 @@ async def delete_clone_cb(client, query: types.CallbackQuery):
         except:
             pass
 
+    from AloneX import userbot, anon
+    bot_id = clone.get("bot_id")
+    if bot_id:
+        if bot_id in userbot.custom_clients:
+            try:
+                await userbot.custom_clients[bot_id].stop()
+                del userbot.custom_clients[bot_id]
+            except:
+                pass
+        if bot_id in anon.custom_calls:
+            try:
+                await anon.custom_calls[bot_id].stop()
+                del anon.custom_calls[bot_id]
+            except:
+                pass
+
     await query.answer("𝐂ℓσиє ᴅєℓєтєᴅ!", show_alert=True)
     await clone_bot_menu(client, query)
 
@@ -90,6 +106,9 @@ async def edit_clone_settings_cb(client, query: types.CallbackQuery):
     if not clone:
         return await query.answer("𝐍σ ᴄℓσиє ғσυиᴅ!", show_alert=True)
 
+    if not clone.get("is_premium"):
+        return await query.answer("𝐘συ иєєᴅ 𝐏ʀєᴍɪυᴍ тσ єᴅιт тнєѕє ѕєттιиɢѕ!", show_alert=True)
+
     setting_type = query.data.split("_")[-1]
 
     if setting_type == "channel":
@@ -100,19 +119,46 @@ async def edit_clone_settings_cb(client, query: types.CallbackQuery):
         await db.update_clone_settings(owner_id, update_channel=msg.text)
         await query.answer("𝐔ᴘᴅαтє ᴄнαииєℓ υᴘᴅαтєᴅ!", show_alert=True)
     else:
-        from AloneX import userbot
-        msg = await query.message.chat.ask(
-            f"<b>𝐒єиᴅ тнє αѕѕιѕтαит ɪᴅ (1 - {len(userbot.clients)})</b>",
-            filters=filters.text & filters.user(owner_id)
-        )
+        from AloneX import userbot, anon
+
         try:
-            assistant_id = int(msg.text)
-            if assistant_id not in range(1, len(userbot.clients) + 1):
-                raise ValueError
-            await db.update_clone_settings(owner_id, assistant_id=assistant_id)
-            await query.answer("𝐀ѕѕιѕтαит υᴘᴅαтєᴅ!", show_alert=True)
-        except ValueError:
-            await query.message.reply_text("<b>❌ 𝐈иναℓιᴅ αѕѕιѕтαит ɪᴅ!</b>")
+            api_id_msg = await query.message.chat.ask(
+                "<b>𝐒єиᴅ уσυʀ 𝐀𝐏𝐈_𝐈𝐃</b>",
+                filters=filters.text & filters.user(owner_id)
+            )
+            try:
+                api_id = int(api_id_msg.text)
+            except ValueError:
+                return await query.message.reply_text("<b>❌ 𝐀𝐏𝐈_𝐈𝐃 ᴍυѕт вє α иυᴍвєʀ!</b>")
+
+            api_hash_msg = await query.message.chat.ask(
+                "<b>𝐒єиᴅ уσυʀ 𝐀𝐏𝐈_𝐇𝐀𝐒𝐇</b>",
+                filters=filters.text & filters.user(owner_id)
+            )
+            api_hash = api_hash_msg.text
+
+            session_msg = await query.message.chat.ask(
+                "<b>𝐒єиᴅ уσυʀ 𝐒𝐓𝐑𝐈𝐍𝐆_𝐒𝐄𝐒𝐒𝐈𝐎𝐍</b>",
+                filters=filters.text & filters.user(owner_id)
+            )
+            session = session_msg.text
+
+            bot_id = clone.get("bot_id")
+            if not bot_id:
+                return await query.message.reply_text("<b>❌ 𝐂ℓσиє вσт ɪᴅ иσт ғσυиᴅ!</b>")
+
+            ub = await userbot.start_custom_assistant(bot_id, api_id, api_hash, session)
+            await anon.start_custom_call(bot_id, ub)
+
+            await db.update_clone_settings(
+                owner_id,
+                api_id=api_id,
+                api_hash=api_hash,
+                session=session
+            )
+            await query.answer("𝐀ѕѕιѕтαит υᴘᴅαтєᴅ αиᴅ 𝐒тαʀтєᴅ!", show_alert=True)
+        except Exception as e:
+            await query.message.reply_text(f"<b>❌ 𝐄ʀʀσʀ: {e}</b>")
 
     await manage_clone_cb(client, query)
 
@@ -155,6 +201,7 @@ async def clone_broadcast(client, message: types.Message):
 async def start_clones():
     clones = await db.get_clones()
     from AloneX.core.bot import Bot
+    from AloneX import userbot, anon
     for clone in clones:
         try:
             clone_bot = Bot(bot_token=clone["bot_token"])
@@ -165,6 +212,19 @@ async def start_clones():
             clone_bot.bl_users.update(app.bl_users)
 
             CLONE_BOTS[clone["owner_id"]] = clone_bot
+
+            if clone.get("api_id") and clone.get("api_hash") and clone.get("session"):
+                try:
+                    ub = await userbot.start_custom_assistant(
+                        clone["bot_id"],
+                        clone["api_id"],
+                        clone["api_hash"],
+                        clone["session"]
+                    )
+                    await anon.start_custom_call(clone["bot_id"], ub)
+                except Exception as e:
+                    logger.error(f"Failed to start custom assistant for {clone['owner_id']}: {e}")
+
             logger.info(f"Started clone for {clone['owner_id']}")
         except Exception as e:
             logger.error(f"Failed to start clone for {clone['owner_id']}: {e}")

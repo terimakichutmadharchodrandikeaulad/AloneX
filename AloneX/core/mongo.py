@@ -127,6 +127,9 @@ class MongoDB:
         from AloneX import anon, app, userbot
 
         if bot_id and bot_id != app.id:
+            if bot_id in anon.custom_calls:
+                return anon.custom_calls[bot_id]
+
             clone = await self.get_clone_by_bot_id(bot_id)
             if clone and clone.get("assistant_id"):
                 num = clone["assistant_id"]
@@ -143,6 +146,9 @@ class MongoDB:
     async def get_client(self, chat_id: int, bot_id: int = None):
         from AloneX import app, userbot
         if bot_id and bot_id != app.id:
+            if bot_id in userbot.custom_clients:
+                return userbot.custom_clients[bot_id]
+
             clone = await self.get_clone_by_bot_id(bot_id)
             if clone and clone.get("assistant_id"):
                 num = clone["assistant_id"]
