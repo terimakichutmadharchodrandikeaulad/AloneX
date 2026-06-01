@@ -47,9 +47,13 @@ def checkUB(play):
                 return await m.reply_text(m.lang["play_admin"])
 
         if chat_id not in db.active_calls:
-            assistant = await db.get_client(chat_id)
+            assistant = await db.get_client(chat_id, client.id)
             try:
                 await client.get_chat(chat_id)
+                try:
+                    await client.get_users(assistant.id)
+                except:
+                    pass
                 member = await client.get_chat_member(chat_id, assistant.id)
                 if member.status in [
                     enums.ChatMemberStatus.BANNED,

@@ -39,7 +39,7 @@ async def _controls(client, query: types.CallbackQuery):
             return await query.answer(
                 query.lang["play_already_paused"], show_alert=True
             )
-        await anon.pause(chat_id)
+        await anon.pause(chat_id, client.id)
         if qaction:
             return await query.edit_message_reply_markup(
                 reply_markup=buttons.queue_markup(chat_id, query.lang["paused"], False)
@@ -50,7 +50,7 @@ async def _controls(client, query: types.CallbackQuery):
     elif action == "resume":
         if await db.playing(chat_id):
             return await query.answer(query.lang["play_not_paused"], show_alert=True)
-        await anon.resume(chat_id)
+        await anon.resume(chat_id, client.id)
         if qaction:
             return await query.edit_message_reply_markup(
                 reply_markup=buttons.queue_markup(chat_id, query.lang["playing"], True)
@@ -91,7 +91,7 @@ async def _controls(client, query: types.CallbackQuery):
         reply = query.lang["play_replayed"].format(user)
 
     elif action == "stop":
-        await anon.stop(chat_id)
+        await anon.stop(chat_id, client.id)
         status = query.lang["stopped"]
         reply = query.lang["play_stopped"].format(user)
 

@@ -42,7 +42,7 @@ async def create_clone_cb(client, query: types.CallbackQuery):
         clone_bot.sudoers.update(app.sudoers)
         clone_bot.bl_users.update(app.bl_users)
 
-        await db.add_clone(query.from_user.id, bot_token)
+        await db.add_clone(query.from_user.id, bot_token, clone_bot.me.id)
         CLONE_BOTS[query.from_user.id] = clone_bot
 
         await wait.edit_text(f"<b>✅ 𝐂ℓσиєᴅ 𝐒υᴄᴄєѕѕғυℓℓу!</b>\n\n<b>𝐘συʀ вσт: @{clone_bot.me.username}</b>")
@@ -87,8 +87,8 @@ async def delete_clone_cb(client, query: types.CallbackQuery):
 async def edit_clone_settings_cb(client, query: types.CallbackQuery):
     owner_id = query.from_user.id
     clone = await db.get_clone(owner_id)
-    if not clone or not clone.get("is_premium"):
-        return await query.answer("𝐏ʀєᴍɪυᴍ ʀєǫυιʀєᴅ тσ єᴅιт тнιѕ ѕєттιиɢ!", show_alert=True)
+    if not clone:
+        return await query.answer("𝐍σ ᴄℓσиє ғσυиᴅ!", show_alert=True)
 
     setting_type = query.data.split("_")[-1]
 
@@ -100,13 +100,14 @@ async def edit_clone_settings_cb(client, query: types.CallbackQuery):
         await db.update_clone_settings(owner_id, update_channel=msg.text)
         await query.answer("𝐔ᴘᴅαтє ᴄнαииєℓ υᴘᴅαтєᴅ!", show_alert=True)
     else:
+        from AloneX import userbot
         msg = await query.message.chat.ask(
-            "<b>𝐒єиᴅ тнє αѕѕιѕтαит ɪᴅ (1, 2, σʀ 3)</b>",
+            f"<b>𝐒єиᴅ тнє αѕѕιѕтαит ɪᴅ (1 - {len(userbot.clients)})</b>",
             filters=filters.text & filters.user(owner_id)
         )
         try:
             assistant_id = int(msg.text)
-            if assistant_id not in [1, 2, 3]:
+            if assistant_id not in range(1, len(userbot.clients) + 1):
                 raise ValueError
             await db.update_clone_settings(owner_id, assistant_id=assistant_id)
             await query.answer("𝐀ѕѕιѕтαит υᴘᴅαтєᴅ!", show_alert=True)

@@ -21,16 +21,19 @@ class Userbot(Client):
         for key, string_key in clients.items():
             name = f"AloneXUB{key[-1]}"
             session = getattr(config, string_key)
-            setattr(
-                self,
-                key,
-                Client(
-                    name=name,
-                    api_id=config.API_ID,
-                    api_hash=config.API_HASH,
-                    session_string=session,
-                ),
-            )
+            if session:
+                setattr(
+                    self,
+                    key,
+                    Client(
+                        name=name,
+                        api_id=config.API_ID,
+                        api_hash=config.API_HASH,
+                        session_string=session,
+                    ),
+                )
+            else:
+                setattr(self, key, None)
 
     async def boot_client(self, num: int, ub: Client):
         """
@@ -47,6 +50,8 @@ class Userbot(Client):
             3: self.three,
         }
         client = clients[num]
+        if not client:
+            return
         await client.start()
         if config.LOGGER_ID:
             try:
@@ -87,10 +92,10 @@ class Userbot(Client):
         """
         Asynchronously stops the assistants.
         """
-        if config.SESSION1:
+        if self.one:
             await self.one.stop()
-        if config.SESSION2:
+        if self.two:
             await self.two.stop()
-        if config.SESSION3:
+        if self.three:
             await self.three.stop()
         logger.info("Assistants stopped.")
