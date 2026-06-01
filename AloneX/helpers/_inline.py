@@ -47,7 +47,9 @@ class Inline:
             rows += [[self.ikb(text=lang["language"], callback_data="language")]]
         return self.ikm(rows)
 
-    def help_markup(self, lang: dict) -> types.InlineKeyboardMarkup:
+    def help_markup(self, lang: dict, back: bool = False) -> types.InlineKeyboardMarkup:
+        if back:
+            return self.ikm([[self.ikb(text=lang["back"], callback_data="help back")]])
         keyboard = [
             [
                 self.ikb(text=lang["help_0"], callback_data="help_item admins"),

@@ -5,6 +5,7 @@
 
 import time
 import logging
+import pyromod
 import static_ffmpeg
 static_ffmpeg.add_paths()
 from logging.handlers import RotatingFileHandler
