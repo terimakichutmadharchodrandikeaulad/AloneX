@@ -108,6 +108,51 @@ class Inline:
             ]
         )
 
+    def queue_markup(self, chat_id: int, status: str, is_playing: bool) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text=status, callback_data=f"controls status {chat_id}"),
+                ],
+                [
+                    self.ikb(
+                        text="▷" if not is_playing else "II",
+                        callback_data=f"controls {'resume' if not is_playing else 'pause'} {chat_id} q",
+                        style=ButtonStyle.SUCCESS
+                    ),
+                    self.ikb(text="‣‣I", callback_data=f"controls skip {chat_id}", style=ButtonStyle.DANGER),
+                    self.ikb(text="▢", callback_data=f"controls stop {chat_id}", style=ButtonStyle.DANGER),
+                ],
+                [
+                    self.ikb(text="⌯ 𝐂ʟσsє ⌯", callback_data="close", style=ButtonStyle.DANGER),
+                ]
+            ]
+        )
+
+    def lang_markup(self, current: str) -> types.InlineKeyboardMarkup:
+        from AloneX.core.lang import lang_codes
+        kb = []
+        for code, name in lang_codes.items():
+            kb.append(
+                self.ikb(
+                    text=f"{'✅ ' if current == code else ''}{name}",
+                    callback_data=f"lang_change {code}"
+                )
+            )
+
+        rows = [kb[i:i + 3] for i in range(0, len(kb), 3)]
+        rows.append([self.ikb(text="⌯ 𝐂ʟσsє ⌯", callback_data="close", style=ButtonStyle.DANGER)])
+        return self.ikm(rows)
+
+    def cancel_dl(self, text: str) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text=text, callback_data="cancel_dl", style=ButtonStyle.DANGER),
+                ]
+            ]
+        )
+
     def clone_manage_markup(self, lang: dict, is_premium: bool) -> types.InlineKeyboardMarkup:
         keyboard = [
             [
@@ -167,5 +212,24 @@ class Inline:
                     self.ikb(text="❐", copy_text=link),
                     self.ikb(text="Youtube", url=link),
                 ],
+            ]
+        )
+
+    def play_queued(self, chat_id: int, file_id: str, text: str) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text=text, callback_data=f"controls force {chat_id} {file_id}", style=ButtonStyle.SUCCESS),
+                    self.ikb(text="⌯ 𝐂ʟσsє ⌯", callback_data="close", style=ButtonStyle.DANGER),
+                ]
+            ]
+        )
+
+    def ping_markup(self, text: str) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text=text, url=config.SUPPORT_CHAT, style=ButtonStyle.SUCCESS),
+                ]
             ]
         )
