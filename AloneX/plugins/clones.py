@@ -13,7 +13,7 @@ CLONE_BOTS = {}
 
 @app.on_callback_query(filters.regex("clone_bot"))
 @lang.language()
-async def clone_bot_menu(_, query: types.CallbackQuery):
+async def clone_bot_menu(client, query: types.CallbackQuery):
     await query.edit_message_caption(
         caption="<blockquote><b>𝐖єℓᴄσᴍє 𝐓σ 𝐓нє 𝐂ℓσиє 𝐒уѕтєм!</b>\n\n<b>𝐘συ ᴄᴀи ᴄℓσиє тнιѕ вσт тσ уσυʀ σωи тσкєи ᴀиᴅ υѕє ιт αѕ уσυʀ σωи вσт.</b></blockquote>",
         reply_markup=buttons.clone_markup(query.lang),
@@ -21,7 +21,7 @@ async def clone_bot_menu(_, query: types.CallbackQuery):
 
 @app.on_callback_query(filters.regex("create_clone"))
 @lang.language()
-async def create_clone_cb(_, query: types.CallbackQuery):
+async def create_clone_cb(client, query: types.CallbackQuery):
     clone = await db.get_clone(query.from_user.id)
     if clone:
         return await query.answer("𝐘συ αℓʀєαᴅу нανє α ᴄℓσиєᴅ вσт!", show_alert=True)
@@ -38,6 +38,10 @@ async def create_clone_cb(_, query: types.CallbackQuery):
         clone_bot = Bot(bot_token=bot_token)
         await clone_bot.start()
 
+        clone_bot.copy_handlers(app)
+        clone_bot.sudoers.update(app.sudoers)
+        clone_bot.bl_users.update(app.bl_users)
+
         await db.add_clone(query.from_user.id, bot_token)
         CLONE_BOTS[query.from_user.id] = clone_bot
 
@@ -49,7 +53,7 @@ async def create_clone_cb(_, query: types.CallbackQuery):
 
 @app.on_callback_query(filters.regex("manage_clone"))
 @lang.language()
-async def manage_clone_cb(_, query: types.CallbackQuery):
+async def manage_clone_cb(client, query: types.CallbackQuery):
     clone = await db.get_clone(query.from_user.id)
     if not clone:
         return await query.answer("𝐘συ ᴅσи'т нανє αиу ᴄℓσиєᴅ вσт!", show_alert=True)
@@ -62,7 +66,7 @@ async def manage_clone_cb(_, query: types.CallbackQuery):
 
 @app.on_callback_query(filters.regex("delete_clone"))
 @lang.language()
-async def delete_clone_cb(_, query: types.CallbackQuery):
+async def delete_clone_cb(client, query: types.CallbackQuery):
     clone = await db.get_clone(query.from_user.id)
     if not clone:
         return await query.answer("𝐍σ ᴄℓσиє ғσυиᴅ!", show_alert=True)
@@ -76,11 +80,11 @@ async def delete_clone_cb(_, query: types.CallbackQuery):
             pass
 
     await query.answer("𝐂ℓσиє ᴅєℓєтєᴅ!", show_alert=True)
-    await clone_bot_menu(_, query)
+    await clone_bot_menu(client, query)
 
 @app.on_callback_query(filters.regex(r"edit_clone_(channel|assistant)"))
 @lang.language()
-async def edit_clone_settings_cb(_, query: types.CallbackQuery):
+async def edit_clone_settings_cb(client, query: types.CallbackQuery):
     owner_id = query.from_user.id
     clone = await db.get_clone(owner_id)
     if not clone or not clone.get("is_premium"):
@@ -109,18 +113,18 @@ async def edit_clone_settings_cb(_, query: types.CallbackQuery):
         except ValueError:
             await query.message.reply_text("<b>❌ 𝐈иναℓιᴅ αѕѕιѕтαит ɪᴅ!</b>")
 
-    await manage_clone_cb(_, query)
+    await manage_clone_cb(client, query)
 
 @app.on_callback_query(filters.regex("clone_premium"))
 @lang.language()
-async def clone_premium_cb(_, query: types.CallbackQuery):
+async def clone_premium_cb(client, query: types.CallbackQuery):
     await query.edit_message_caption(
-        caption="<blockquote><b>💎 𝐂ℓσиє 𝐏ʀєᴍɪυᴍ</b>\n\n<b>𝐔иℓσᴄк єᴅιтιиɢ υᴘᴅαтє ᴄнαииєℓ αиᴅ αѕѕιѕтαит єᴅιтѕ.</b>\n\n<b>𝐂σитαᴄт @ForRealAlone тσ ɢєт ᴘʀєᴍɪυᴍ αᴄᴄєѕѕ.</b></blockquote>",
+        caption="<blockquote><b>💎 𝐂ℓσиє 𝐏ʀєᴍɪυᴍ</b>\n\n<b>𝐔иℓσᴄк єᴅιтιиɢ υᴘᴅαтє ᴄнαииєℓ αиᴅ αѕѕιѕтαит єᴅιтѕ.</b>\n\n<b>𝐂σитαᴄт @zolvidid тσ ɢєт ᴘʀєᴍɪυᴍ αᴄᴄєѕѕ.</b></blockquote>",
         reply_markup=types.InlineKeyboardMarkup([[types.InlineKeyboardButton("𝐁αᴄк", callback_data="manage_clone")]])
     )
 
 @app.on_message(filters.command("clone_broadcast") & filters.private)
-async def clone_broadcast(_, message: types.Message):
+async def clone_broadcast(client, message: types.Message):
     owner_id = message.from_user.id
     clone = await db.get_clone(owner_id)
     if not clone:
@@ -154,6 +158,11 @@ async def start_clones():
         try:
             clone_bot = Bot(bot_token=clone["bot_token"])
             await clone_bot.start()
+
+            clone_bot.copy_handlers(app)
+            clone_bot.sudoers.update(app.sudoers)
+            clone_bot.bl_users.update(app.bl_users)
+
             CLONE_BOTS[clone["owner_id"]] = clone_bot
             logger.info(f"Started clone for {clone['owner_id']}")
         except Exception as e:

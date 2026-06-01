@@ -50,7 +50,10 @@ class Userbot(Client):
         await client.start()
         if config.LOGGER_ID:
             try:
-                await client.get_chat(config.LOGGER_ID)
+                try:
+                    await client.get_chat(config.LOGGER_ID)
+                except:
+                    pass
                 await client.send_message(config.LOGGER_ID, "Assistant Started")
             except Exception as ex:
                 logger.error(

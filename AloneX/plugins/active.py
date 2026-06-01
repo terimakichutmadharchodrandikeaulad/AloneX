@@ -12,7 +12,7 @@ from AloneX import app, db, lang, queue
 
 @app.on_message(filters.command(["ac", "activevc"]) & app.sudoers)
 @lang.language()
-async def _activevc(_, m: types.Message):
+async def _activevc(client, m: types.Message):
     if not db.active_calls:
         return await m.reply_text(m.lang["vc_empty"])
 

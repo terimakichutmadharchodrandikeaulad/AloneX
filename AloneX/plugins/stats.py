@@ -17,7 +17,7 @@ from AloneX.plugins import all_modules
 
 @app.on_message(filters.command(["stats"]) & filters.group & ~app.bl_users)
 @lang.language()
-async def _stats(_, m: types.Message):
+async def _stats(client, m: types.Message):
     sent = await m.reply_photo(
         photo=config.PING_IMG,
         caption=m.lang["stats_fetching"],
@@ -25,16 +25,16 @@ async def _stats(_, m: types.Message):
 
     pid = os.getpid()
     _utext = m.lang["stats_user"].format(
-        app.name,
+        client.name,
         len(userbot.clients),
         config.AUTO_LEAVE,
         len(db.blacklisted),
-        len(app.bl_users),
-        len(app.sudoers),
+        len(client.bl_users),
+        len(client.sudoers),
         len(await db.get_chats()),
         len(await db.get_users()),
     )
-    if m.from_user.id in app.sudoers:
+    if m.from_user.id in client.sudoers:
         process = psutil.Process(pid)
         storage = psutil.disk_usage("/")
         _utext += m.lang["stats_sudo"].format(

@@ -12,7 +12,7 @@ from AloneX.helpers import can_manage_vc
 @app.on_message(filters.command(["seek", "seekback"]) & filters.group & ~app.bl_users)
 @lang.language()
 @can_manage_vc
-async def _seek(_, m: types.Message):
+async def _seek(client, m: types.Message):
     if len(m.command) < 2:
         return await m.reply_text(m.lang["play_seek_usage"].format(m.command[0]))
 

@@ -15,6 +15,7 @@ class Media:
     message_id: int
     title: str
     url: str
+    bot_id: int = 0
     time: int = 0
     user: str = None
     video: bool = False
@@ -30,6 +31,7 @@ class Track:
     url: str
     file_path: str = None
     message_id: int = 0
+    bot_id: int = 0
     time: int = 0
     thumbnail: str = None
     user: str = None

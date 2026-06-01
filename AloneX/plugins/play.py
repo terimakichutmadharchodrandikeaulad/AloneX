@@ -28,7 +28,7 @@ def playlist_to_queue(chat_id: int, tracks: list) -> str:
 @lang.language()
 @checkUB
 async def play_hndlr(
-    _,
+    client,
     m: types.Message,
     force: bool = False,
     m3u8: bool = False,
@@ -86,6 +86,7 @@ async def play_hndlr(
         await utils.play_log(m, file.title, file.duration)
 
     file.user = mention
+    file.bot_id = client.id
     if force:
         queue.force_add(m.chat.id, file)
     else:
@@ -106,7 +107,7 @@ async def play_hndlr(
             )
             if tracks:
                 added = playlist_to_queue(m.chat.id, tracks)
-                await app.send_message(
+                await client.send_message(
                     chat_id=m.chat.id,
                     text=m.lang["playlist_queued"].format(len(tracks)) + added,
                 )
@@ -124,7 +125,7 @@ async def play_hndlr(
     if not tracks:
         return
     added = playlist_to_queue(m.chat.id, tracks)
-    await app.send_message(
+    await client.send_message(
         chat_id=m.chat.id,
         text=m.lang["playlist_queued"].format(len(tracks)) + added,
     )
