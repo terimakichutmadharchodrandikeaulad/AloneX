@@ -14,7 +14,7 @@ from AloneX.helpers import admin_check, is_admin, utils
 @app.on_message(filters.command(["auth", "unauth"]) & filters.group & ~app.bl_users)
 @lang.language()
 @admin_check
-async def _auth(_, m: types.Message):
+async def _auth(client, m: types.Message):
     user = await utils.extract_user(m)
     if not user:
         return await m.reply_text(m.lang["user_not_found"])
@@ -34,7 +34,7 @@ rel_hist = {}
 
 @app.on_message(filters.command(["admincache", "reload"]) & filters.group & ~app.bl_users)
 @lang.language()
-async def _admincache(_, m: types.Message):
+async def _admincache(client, m: types.Message):
     if m.from_user.id in rel_hist:
         if time.time() < rel_hist[m.from_user.id]:
             return await m.reply_text(m.lang["admin_cache_wait"])

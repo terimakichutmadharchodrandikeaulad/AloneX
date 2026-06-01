@@ -13,7 +13,7 @@ from AloneX.helpers import admin_check, buttons, can_manage_vc
 
 @app.on_callback_query(filters.regex("cancel_dl") & ~app.bl_users)
 @lang.language()
-async def cancel_dl(_, query: types.CallbackQuery):
+async def cancel_dl(client, query: types.CallbackQuery):
     await query.answer()
     await tg.cancel(query)
 
@@ -21,7 +21,7 @@ async def cancel_dl(_, query: types.CallbackQuery):
 @app.on_callback_query(filters.regex("controls") & ~app.bl_users)
 @lang.language()
 @can_manage_vc
-async def _controls(_, query: types.CallbackQuery):
+async def _controls(client, query: types.CallbackQuery):
     args = query.data.split()
     action, chat_id = args[1], int(args[2])
     qaction = len(args) == 4
@@ -70,14 +70,14 @@ async def _controls(_, query: types.CallbackQuery):
         m_id = queue.get_current(chat_id).message_id
         queue.force_add(chat_id, media, remove=pos)
         try:
-            await app.delete_messages(
+            await client.delete_messages(
                 chat_id=chat_id, message_ids=[m_id, media.message_id], revoke=True
             )
             media.message_id = None
         except:
             pass
 
-        msg = await app.send_message(chat_id=chat_id, text=query.lang["play_next"])
+        msg = await client.send_message(chat_id=chat_id, text=query.lang["play_next"])
         if not media.file_path:
             media.file_path = await yt.download(media.id, video=media.video)
         media.message_id = msg.id
@@ -118,10 +118,10 @@ async def _controls(_, query: types.CallbackQuery):
 
 @app.on_callback_query(filters.regex("help") & ~app.bl_users)
 @lang.language()
-async def _help(_, query: types.CallbackQuery):
+async def _help(client, query: types.CallbackQuery):
     data = query.data.split()
     if len(data) == 1:
-        return await query.answer(url=f"https://t.me/{app.username}?start=help")
+        return await query.answer(url=f"https://t.me/{client.username}?start=help")
 
     if data[1] == "back":
         return await query.edit_message_text(
@@ -143,7 +143,7 @@ async def _help(_, query: types.CallbackQuery):
 @app.on_callback_query(filters.regex("settings") & ~app.bl_users)
 @lang.language()
 @admin_check
-async def _settings_cb(_, query: types.CallbackQuery):
+async def _settings_cb(client, query: types.CallbackQuery):
     cmd = query.data.split()
     if len(cmd) == 1:
         return await query.answer()

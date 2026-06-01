@@ -41,7 +41,10 @@ class Bot(pyrogram.Client):
 
         if self.logger:
             try:
-                await self.get_chat(self.logger)
+                try:
+                    await self.get_chat(self.logger)
+                except:
+                    pass
                 await self.send_message(self.logger, "Bot Started")
                 get = await self.get_chat_member(self.logger, self.id)
                 if get.status != pyrogram.enums.ChatMemberStatus.ADMINISTRATOR:
@@ -56,6 +59,14 @@ class Bot(pyrogram.Client):
                     "3. You have sent a message or mentioned the bot in the group."
                 )
         logger.info(f"Bot started as @{self.username}")
+
+    def copy_handlers(self, client: pyrogram.Client):
+        """
+        Copies handlers from another Pyrogram client to this bot.
+        """
+        for group, handlers in client.dispatcher.groups.items():
+            for handler in handlers:
+                self.add_handler(handler, group)
 
     async def exit(self):
         """

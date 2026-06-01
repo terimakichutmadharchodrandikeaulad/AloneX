@@ -21,7 +21,7 @@ from AloneX.helpers import format_exception, meval
 @app.on_message(filters.command(["eval", "exec"]) & filters.user(app.owner))
 @app.on_edited_message(filters.command(["eval", "exec"]) & filters.user(app.owner))
 @lang.language()
-async def eval_handler(_, message: types.Message):
+async def eval_handler(client, message: types.Message):
     if len(message.command) < 2:
         return await message.reply_text(message.lang["eval_inp"])
 
@@ -41,10 +41,10 @@ async def eval_handler(_, message: types.Message):
             "r": message.reply_to_message,
             "chat": message.chat,
             "user": message.from_user,
-            "app": app,
+            "app": client,
             "anon": anon,
             "db": db,
-            "client": app,
+            "client": client,
             "ub": userbot,
             "ikb": types.InlineKeyboardButton,
             "ikm": types.InlineKeyboardMarkup,

@@ -57,6 +57,17 @@ class TgCall(PyTgCalls):
             else config.DEFAULT_THUMB
         )
 
+        from AloneX.plugins.clones import CLONE_BOTS
+        bot = (
+            app
+            if not media.bot_id or media.bot_id == app.id
+            else (
+                [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
+                if any(c.id == media.bot_id for c in CLONE_BOTS.values())
+                else app
+            )
+        )
+
         if not media.file_path:
             await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
             return await self.play_next(chat_id)
@@ -98,7 +109,7 @@ class TgCall(PyTgCalls):
                         reply_markup=keyboard,
                     )
                 except MessageIdInvalid:
-                    media.message_id = (await app.send_photo(
+                    media.message_id = (await bot.send_photo(
                         chat_id=chat_id,
                         photo=_thumb,
                         caption=text,
@@ -127,15 +138,35 @@ class TgCall(PyTgCalls):
 
         media = queue.get_current(chat_id)
         _lang = await lang.get_lang(chat_id)
-        msg = await app.send_message(chat_id=chat_id, text=_lang["play_again"])
+        from AloneX.plugins.clones import CLONE_BOTS
+        bot = (
+            app
+            if not media.bot_id or media.bot_id == app.id
+            else (
+                [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
+                if any(c.id == media.bot_id for c in CLONE_BOTS.values())
+                else app
+            )
+        )
+        msg = await bot.send_message(chat_id=chat_id, text=_lang["play_again"])
         await self.play_media(chat_id, msg, media)
 
 
     async def play_next(self, chat_id: int) -> None:
         media = queue.get_next(chat_id)
+        from AloneX.plugins.clones import CLONE_BOTS
+        bot = (
+            app
+            if not media or not media.bot_id or media.bot_id == app.id
+            else (
+                [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
+                if any(c.id == media.bot_id for c in CLONE_BOTS.values())
+                else app
+            )
+        )
         try:
-            if media.message_id:
-                await app.delete_messages(
+            if media and media.message_id:
+                await bot.delete_messages(
                     chat_id=chat_id,
                     message_ids=media.message_id,
                     revoke=True,
@@ -148,7 +179,7 @@ class TgCall(PyTgCalls):
             return await self.stop(chat_id)
 
         _lang = await lang.get_lang(chat_id)
-        msg = await app.send_message(chat_id=chat_id, text=_lang["play_next"])
+        msg = await bot.send_message(chat_id=chat_id, text=_lang["play_next"])
         if not media.file_path:
             media.file_path = await yt.download(media.id, video=media.video)
             if not media.file_path:

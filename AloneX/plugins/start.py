@@ -12,7 +12,7 @@ from AloneX.helpers import buttons, utils
 
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
 @lang.language()
-async def _help(_, m: types.Message):
+async def _help(client, m: types.Message):
     await m.reply_text(
         text=m.lang["help_menu"],
         reply_markup=buttons.help_markup(m.lang),
@@ -22,18 +22,18 @@ async def _help(_, m: types.Message):
 
 @app.on_message(filters.command(["start"]))
 @lang.language()
-async def start(_, message: types.Message):
-    if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
+async def start(client, message: types.Message):
+    if message.from_user.id in client.bl_users and message.from_user.id not in db.notified:
         return await message.reply_text(message.lang["bl_user_notify"])
 
     if len(message.command) > 1 and message.command[1] == "help":
-        return await _help(_, message)
+        return await _help(client, message)
 
     private = message.chat.type == enums.ChatType.PRIVATE
     _text = (
-        message.lang["start_pm"].format(message.from_user.first_name, app.name)
+        message.lang["start_pm"].format(message.from_user.first_name, client.name)
         if private
-        else message.lang["start_gp"].format(app.name)
+        else message.lang["start_gp"].format(client.name)
     )
 
     key = buttons.start_key(message.lang, private)
@@ -58,7 +58,7 @@ async def start(_, message: types.Message):
 
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
 @lang.language()
-async def settings(_, message: types.Message):
+async def settings(client, message: types.Message):
     admin_only = await db.get_play_mode(message.chat.id)
     cmd_delete = await db.get_cmd_delete(message.chat.id)
     _language = await db.get_lang(message.chat.id)
@@ -73,13 +73,13 @@ async def settings(_, message: types.Message):
 
 @app.on_message(filters.new_chat_members, group=7)
 @lang.language()
-async def _new_member(_, message: types.Message):
+async def _new_member(client, message: types.Message):
     if message.chat.type != enums.ChatType.SUPERGROUP:
         return await message.chat.leave()
 
     await asyncio.sleep(3)
     for member in message.new_chat_members:
-        if member.id == app.id:
+        if member.id == client.id:
             if await db.is_chat(message.chat.id):
                 return
             await utils.send_log(message, True)

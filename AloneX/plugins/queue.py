@@ -11,7 +11,7 @@ from AloneX.helpers import Track, buttons, thumb
 
 @app.on_message(filters.command(["queue", "playing"]) & filters.group & ~app.bl_users)
 @lang.language()
-async def _queue_func(_, m: types.Message):
+async def _queue_func(client, m: types.Message):
     if not await db.get_call(m.chat.id):
         return await m.reply_text(m.lang["not_playing"])
 

@@ -12,7 +12,7 @@ from AloneX.helpers import buttons, can_manage_vc
 @app.on_message(filters.command(["pause"]) & filters.group & ~app.bl_users)
 @lang.language()
 @can_manage_vc
-async def _pause(_, m: types.Message):
+async def _pause(client, m: types.Message):
     if not await db.get_call(m.chat.id):
         return await m.reply_text(m.lang["not_playing"])
 

@@ -10,11 +10,12 @@ from pyrogram import enums, errors, filters, types
 
 from AloneX import anon, app, config, db, lang, queue, tasks, userbot, yt
 from AloneX.helpers import buttons
+from AloneX.plugins.clones import CLONE_BOTS
 
 
 @app.on_message(filters.video_chat_started, group=19)
 @app.on_message(filters.video_chat_ended, group=20)
-async def _watcher_vc(_, m: types.Message):
+async def _watcher_vc(client, m: types.Message):
     await anon.stop(m.chat.id)
 
 
@@ -82,7 +83,16 @@ async def update_timer(length=10):
                     remove = False
                     timer = f"{time.strftime('%M:%S', time.gmtime(played))} | {timer} | -{time.strftime('%M:%S', time.gmtime(remaining))}"
 
-                await app.edit_message_reply_markup(
+                client = (
+                    app
+                    if not media.bot_id or media.bot_id == app.id
+                    else (
+                        [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
+                        if any(c.id == media.bot_id for c in CLONE_BOTS.values())
+                        else app
+                    )
+                )
+                await client.edit_message_reply_markup(
                     chat_id=chat_id,
                     message_id=message_id,
                     reply_markup=buttons.controls(
@@ -103,7 +113,16 @@ async def vc_watcher(sleep=15):
             if len(participants) < 2 and media.time > 30:
                 _lang = await lang.get_lang(chat_id)
                 try:
-                    sent = await app.edit_message_reply_markup(
+                    client = (
+                        app
+                        if not media.bot_id or media.bot_id == app.id
+                        else (
+                            [c for c in CLONE_BOTS.values() if c.id == media.bot_id][0]
+                            if any(c.id == media.bot_id for c in CLONE_BOTS.values())
+                            else app
+                        )
+                    )
+                    sent = await client.edit_message_reply_markup(
                         chat_id=chat_id,
                         message_id=media.message_id,
                         reply_markup=buttons.controls(

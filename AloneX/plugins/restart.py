@@ -15,21 +15,21 @@ from AloneX import app, db, lang, stop
 
 @app.on_message(filters.command(["logs"]) & app.sudoers)
 @lang.language()
-async def _logs(_, m: types.Message):
+async def _logs(client, m: types.Message):
     sent = await m.reply_text(m.lang["log_fetch"])
     if not os.path.exists("log.txt"):
         return await sent.edit_text(m.lang["log_not_found"])
 
     await m.reply_document(
         document="log.txt",
-        caption=m.lang["log_sent"].format(app.name),
+        caption=m.lang["log_sent"].format(client.name),
     )
     await sent.delete()
 
 
 @app.on_message(filters.command(["logger"]) & app.sudoers)
 @lang.language()
-async def _logger(_, m: types.Message):
+async def _logger(client, m: types.Message):
     if len(m.command) < 2:
         return await m.reply_text(m.lang["logger_usage"].format(m.command[0]))
     if m.command[1] not in ("on", "off"):
@@ -45,7 +45,7 @@ async def _logger(_, m: types.Message):
 
 @app.on_message(filters.command(["restart"]) & app.sudoers)
 @lang.language()
-async def _restart(_, m: types.Message):
+async def _restart(client, m: types.Message):
     sent = await m.reply_text(m.lang["restarting"])
 
     for directory in ["cache", "downloads"]:
