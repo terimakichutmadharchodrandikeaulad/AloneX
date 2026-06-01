@@ -17,6 +17,7 @@ from AloneX.helpers import Media, Track, buttons, thumb
 class TgCall(PyTgCalls):
     def __init__(self):
         self.clients = []
+        self.custom_calls = {}
 
     async def pause(self, chat_id: int, bot_id: int = None) -> bool:
         client = await db.get_assistant(chat_id, bot_id)
@@ -196,6 +197,19 @@ class TgCall(PyTgCalls):
         media.message_id = msg.id
         await self.play_media(chat_id, msg, media)
 
+
+    async def start_custom_call(self, bot_id: int, ub: Client):
+        if bot_id in self.custom_calls:
+            try:
+                await self.custom_calls[bot_id].stop()
+            except:
+                pass
+
+        client = PyTgCalls(ub, cache_duration=100)
+        await client.start()
+        await self.decorators(client)
+        self.custom_calls[bot_id] = client
+        return client
 
     async def ping(self) -> float:
         pings = [client.ping for client in self.clients]
