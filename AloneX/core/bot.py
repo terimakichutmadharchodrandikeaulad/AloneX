@@ -26,6 +26,14 @@ class Bot(pyrogram.Client):
         self.bl_users = pyrogram.filters.user()
         self.sudoers = pyrogram.filters.user(self.owner)
 
+    async def start(self):
+        await super().start()
+        self.id = self.me.id
+        self.name = self.me.first_name
+        self.username = self.me.username
+        self.mention = self.me.mention
+        return self
+
     async def boot(self):
         """
         Starts the bot and performs initial setup.
@@ -33,11 +41,7 @@ class Bot(pyrogram.Client):
         Raises:
             SystemExit: If the bot fails to access the log group or is not an administrator in the logger group.
         """
-        await super().start()
-        self.id = self.me.id
-        self.name = self.me.first_name
-        self.username = self.me.username
-        self.mention = self.me.mention
+        await self.start()
 
         if self.logger:
             try:
