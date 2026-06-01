@@ -32,6 +32,26 @@ class Bot(pyrogram.Client):
         self.name = self.me.first_name
         self.username = self.me.username
         self.mention = self.me.mention
+        try:
+            await self.set_commands(
+                [
+                    pyrogram.types.BotCommand("play", "Play the requested song"),
+                    pyrogram.types.BotCommand("vplay", "Play the requested video song"),
+                    pyrogram.types.BotCommand("skip", "Skip the current stream"),
+                    pyrogram.types.BotCommand("pause", "Pause the ongoing stream"),
+                    pyrogram.types.BotCommand("resume", "Resume the paused stream"),
+                    pyrogram.types.BotCommand("stop", "Stop the ongoing stream"),
+                    pyrogram.types.BotCommand("queue", "Check the queued tracks"),
+                    pyrogram.types.BotCommand("auth", "Authorize a user"),
+                    pyrogram.types.BotCommand("unauth", "Unauthorize a user"),
+                    pyrogram.types.BotCommand("reload", "Reload the admin cache"),
+                    pyrogram.types.BotCommand("seek", "Seek the ongoing stream"),
+                    pyrogram.types.BotCommand("seekback", "Seek the ongoing stream backward"),
+                    pyrogram.types.BotCommand("rajpapa", "Show all commands list"),
+                ]
+            )
+        except:
+            pass
         return self
 
     async def boot(self):

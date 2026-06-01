@@ -38,7 +38,7 @@ def checkUB(play):
 
         play_mode = await db.get_play_mode(chat_id)
         if play_mode or force:
-            adminlist = await db.get_admins(chat_id)
+            adminlist = await db.get_admins(chat_id, client=client)
             if (
                 m.from_user.id not in adminlist
                 and not await db.is_auth(chat_id, m.from_user.id)
