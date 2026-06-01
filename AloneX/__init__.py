@@ -5,8 +5,23 @@
 
 import time
 import logging
+import pyrogram.utils
 import pyromod
 import static_ffmpeg
+
+# Monkey-patch Pyrogram constants and get_peer_type to support modern 64-bit IDs
+pyrogram.utils.MAX_USER_ID = 9999999999999
+pyrogram.utils.MAX_CHAT_ID = 9999999999999
+pyrogram.utils.MAX_CHANNEL_ID = 99999999999999
+
+def get_peer_type_patched(peer_id: int) -> str:
+    if peer_id < 0:
+        if peer_id >= -999999999999:
+            return "chat"
+        return "channel"
+    return "user"
+
+pyrogram.utils.get_peer_type = get_peer_type_patched
 static_ffmpeg.add_paths()
 from logging.handlers import RotatingFileHandler
 
