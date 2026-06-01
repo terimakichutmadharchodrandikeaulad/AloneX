@@ -304,15 +304,20 @@ class MongoDB:
                 "$set": {
                     "bot_token": bot_token,
                     "status": "active",
-                    "is_premium": False,
                     "update_channel": config.SUPPORT_CHANNEL,
                     "assistant_id": 1,
                     "updated_at": time(),
                 },
-                "$setOnInsert": {"created_at": time()},
+                "$setOnInsert": {
+                    "is_premium": False,
+                    "created_at": time(),
+                },
             },
             upsert=True,
         )
+
+    async def get_premium_users(self):
+        return [clone async for clone in self.clonesdb.find({"is_premium": True})]
 
     async def get_clone(self, owner_id: int):
         return await self.clonesdb.find_one({"owner_id": owner_id})
