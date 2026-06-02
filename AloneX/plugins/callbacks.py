@@ -127,7 +127,7 @@ async def start_menu_cb(client, query: types.CallbackQuery):
     )
     await query.edit_message_caption(
         caption=_text,
-        reply_markup=buttons.start_key(query.lang, private),
+        reply_markup=buttons.start_key(query.lang, client.username, private),
     )
 
 
