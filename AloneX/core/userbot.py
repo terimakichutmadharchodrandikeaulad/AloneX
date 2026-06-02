@@ -90,6 +90,7 @@ class Userbot(Client):
             api_id=api_id,
             api_hash=api_hash,
             session_string=session,
+            in_memory=True,
         )
         await client.start()
         client.id = client.me.id

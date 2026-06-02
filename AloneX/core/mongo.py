@@ -358,6 +358,20 @@ class MongoDB:
             {"owner_id": owner_id}, {"$set": kwargs}
         )
 
+    async def get_warns(self, chat_id: int, user_id: int) -> int:
+        doc = await self.db.warns.find_one({"chat_id": chat_id, "user_id": user_id})
+        return doc.get("count", 0) if doc else 0
+
+    async def set_warns(self, chat_id: int, user_id: int, count: int):
+        return await self.db.warns.update_one(
+            {"chat_id": chat_id, "user_id": user_id},
+            {"$set": {"count": count}},
+            upsert=True,
+        )
+
+    async def rm_warns(self, chat_id: int, user_id: int):
+        return await self.db.warns.delete_one({"chat_id": chat_id, "user_id": user_id})
+
     async def is_clone_premium(self, owner_id: int) -> bool:
         clone = await self.get_clone(owner_id)
         return clone.get("is_premium", False) if clone else False
