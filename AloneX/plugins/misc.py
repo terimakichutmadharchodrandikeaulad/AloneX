@@ -14,9 +14,19 @@ from AloneX.plugins.clones import CLONE_BOTS
 
 
 @app.on_message(filters.video_chat_started, group=19)
-@app.on_message(filters.video_chat_ended, group=20)
-async def _watcher_vc(client, m: types.Message):
+@lang.language()
+async def _watcher_vc_started(client, m: types.Message):
     await anon.stop(m.chat.id)
+    user = m.from_user.mention if m.from_user else "Someone"
+    await m.reply_text(m.lang["vc_started"].format(user))
+
+
+@app.on_message(filters.video_chat_ended, group=20)
+@lang.language()
+async def _watcher_vc_ended(client, m: types.Message):
+    await anon.stop(m.chat.id)
+    user = m.from_user.mention if m.from_user else "Someone"
+    await m.reply_text(m.lang["vc_ended"].format(user))
 
 
 async def auto_leave():

@@ -222,7 +222,8 @@ async def edit_clone_settings_cb(client, query: types.CallbackQuery):
             )
             await query.answer("𝐀ѕѕιѕтαит υᴘᴅαтєᴅ αиᴅ 𝐒тαʀтєᴅ!", show_alert=True)
         except Exception as e:
-            await query.message.reply_text(f"<b>❌ 𝐄ʀʀσʀ: {e}</b>")
+            logger.exception(f"Error updating custom assistant for {owner_id}")
+            await query.message.reply_text(f"<b>❌ 𝐄ʀʀσʀ: {type(e).__name__}: {e}</b>")
 
     await manage_clone_cb(client, query)
 
