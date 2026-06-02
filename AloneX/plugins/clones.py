@@ -64,6 +64,62 @@ async def manage_clone_cb(client, query: types.CallbackQuery):
         reply_markup=buttons.clone_manage_markup(query.lang, is_premium),
     )
 
+@app.on_callback_query(filters.regex("clone_stats"))
+@lang.language()
+async def clone_stats_cb(client, query: types.CallbackQuery):
+    clone = await db.get_clone(query.from_user.id)
+    if not clone:
+        return await query.answer("𝐍σ ᴄℓσиє ғσυиᴅ!", show_alert=True)
+
+    clone_bot = CLONE_BOTS.get(query.from_user.id)
+    if not clone_bot:
+        return await query.answer(query.lang.get("clone_not_running", "𝐂ℓσиє вσт ιѕ иσт ʀυииιиɢ!"), show_alert=True)
+
+    await query.answer(query.lang.get("fetching_stats", "𝐅єтᴄнιиɢ ᴄℓσиє ѕтαтѕ..."), show_alert=False)
+
+    users = 0
+    groups = 0
+    async for dialog in clone_bot.get_dialogs():
+        if dialog.chat.type in [enums.ChatType.SUPERGROUP, enums.ChatType.GROUP]:
+            groups += 1
+        elif dialog.chat.type == enums.ChatType.PRIVATE:
+            users += 1
+
+    await query.edit_message_caption(
+        caption=query.lang["clone_stats_text"].format(users, groups),
+        reply_markup=types.InlineKeyboardMarkup([[types.InlineKeyboardButton(query.lang["back"], callback_data="manage_clone")]])
+    )
+
+@app.on_callback_query(filters.regex("restart_clone"))
+@lang.language()
+async def restart_clone_cb(client, query: types.CallbackQuery):
+    clone = await db.get_clone(query.from_user.id)
+    if not clone:
+        return await query.answer(query.lang.get("no_clone_found", "𝐍σ ᴄℓσиє ғσυиᴅ!"), show_alert=True)
+
+    await query.answer(query.lang["clone_restarting"], show_alert=True)
+
+    if query.from_user.id in CLONE_BOTS:
+        try:
+            await CLONE_BOTS[query.from_user.id].stop()
+        except:
+            pass
+
+    try:
+        from AloneX.core.bot import Bot
+        clone_bot = Bot(bot_token=clone["bot_token"])
+        await clone_bot.start()
+        clone_bot.copy_handlers(app)
+        clone_bot.sudoers.update(app.sudoers)
+        clone_bot.bl_users.update(app.bl_users)
+        CLONE_BOTS[query.from_user.id] = clone_bot
+        await query.edit_message_caption(
+            caption=query.lang["clone_restarted"],
+            reply_markup=types.InlineKeyboardMarkup([[types.InlineKeyboardButton(query.lang["back"], callback_data="manage_clone")]])
+        )
+    except Exception as e:
+        await query.edit_message_caption(caption=f"<b>❌ 𝐄ʀʀσʀ: {e}</b>", reply_markup=types.InlineKeyboardMarkup([[types.InlineKeyboardButton("𝐁αᴄк", callback_data="manage_clone")]]))
+
 @app.on_callback_query(filters.regex("delete_clone"))
 @lang.language()
 async def delete_clone_cb(client, query: types.CallbackQuery):
