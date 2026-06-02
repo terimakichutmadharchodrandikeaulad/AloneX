@@ -27,10 +27,19 @@ def admin_check(func):
         user_id = update.from_user.id
         admins = await db.get_admins(chat_id, client=client)
 
-        if user_id in app.sudoers:
+        if user_id in client.sudoers:
             return await func(client, update, *args, **kwargs)
 
         if user_id not in admins:
+            try:
+                member = await client.get_chat_member(chat_id, user_id)
+                if member.status in [
+                    enums.ChatMemberStatus.ADMINISTRATOR,
+                    enums.ChatMemberStatus.OWNER,
+                ]:
+                    return await func(client, update, *args, **kwargs)
+            except:
+                pass
             return await reply(update.lang["user_no_perms"])
 
         return await func(client, update, *args, **kwargs)
@@ -48,7 +57,7 @@ def can_manage_vc(func):
         )
         user_id = update.from_user.id
 
-        if user_id in app.sudoers:
+        if user_id in client.sudoers:
             return await func(client, update, *args, **kwargs)
 
         if await db.is_auth(chat_id, user_id):
@@ -57,6 +66,16 @@ def can_manage_vc(func):
         admins = await db.get_admins(chat_id, client=client)
         if user_id in admins:
             return await func(client, update, *args, **kwargs)
+
+        try:
+            member = await client.get_chat_member(chat_id, user_id)
+            if member.status in [
+                enums.ChatMemberStatus.ADMINISTRATOR,
+                enums.ChatMemberStatus.OWNER,
+            ]:
+                return await func(client, update, *args, **kwargs)
+        except:
+            pass
 
         if isinstance(update, types.Message):
             return await update.reply_text(update.lang["user_no_perms"])
@@ -91,5 +110,7 @@ async def reload_admins(chat_id: int, client=None) -> list[int]:
             if not admin.user.is_bot
         ]
         return [admin.user.id for admin in admins]
-    except:
+    except Exception as e:
+        from AloneX import logger
+        logger.warning(f"Could not reload admins for {chat_id}: {e}")
         return []

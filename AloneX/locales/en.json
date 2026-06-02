@@ -159,5 +159,12 @@
     "help_5": "𝐏ʟᴀʏ",
     "help_6": "𝐐ᴜᴇᴜᴇ",
     "help_7": "𝐒ᴛᴀᴛs",
-    "help_8": "𝐒ᴜᴅᴏᴇʀs"
+    "help_8": "𝐒ᴜᴅᴏᴇʀs",
+    "supreme_panel_text": "<b>𝐖єℓᴄσᴍє тσ тнє 𝐒υᴘʀєᴍє 𝐏αиєℓ!</b>\n\n<b>𝐂нσσѕє αи σᴘтισи вєℓσω тσ ᴍαиαɢє тнє вσт.</b>",
+    "clone_stats_text": "<blockquote><b>📊 𝐂ℓσиє 𝐒тαтѕ</b>\n\n<b>𝐔ѕєʀѕ: {0}</b>\n<b>𝐆ʀσυᴘѕ: {1}</b></blockquote>",
+    "clone_restarting": "𝐑єѕтαʀтιиɢ ᴄℓσиє...",
+    "clone_restarted": "<b>✅ 𝐂ℓσиє ʀєѕтαʀтєᴅ ѕυᴄᴄєѕѕғυℓℓу!</b>",
+    "supreme_stats_title": "<b>📊 𝐒υᴘʀєᴍє 𝐒тαтѕ</b>\n\n",
+    "broadcast_panel_title": "<b>📢 𝐁ʀσαᴅᴄαѕт 𝐏αиєℓ</b>\n\n<b>𝐔ѕє /broadcast [ʀєᴘℓу тσ ᴍєѕѕαɢє] тσ ѕтαʀт α ɢℓσвαℓ вʀσαᴅᴄαѕт.</b>",
+    "restart_done": "𝐑єѕтαʀтιиɢ..."
 }

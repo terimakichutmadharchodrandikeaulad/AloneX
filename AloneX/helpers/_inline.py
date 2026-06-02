@@ -108,6 +108,34 @@ class Inline:
             ]
         )
 
+    def supreme_markup(self, lang: dict) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text="📊 𝐒ᴛᴀᴛs", callback_data="supreme_stats"),
+                    self.ikb(text="🔊 𝐀ᴄᴛɪᴠє 𝐕𝐂", callback_data="activevc_panel"),
+                ],
+                [
+                    self.ikb(text="👥 𝐒ᴜᴅᴏєʀs", callback_data="sudolist_panel"),
+                    self.ikb(text="📢 𝐁ʀᴏᴀᴅᴄᴀsᴛ", callback_data="broadcast_panel"),
+                ],
+                [
+                    self.ikb(text="🔄 𝐑єѕтᴧʀт", callback_data="restart_bot"),
+                    self.ikb(text="⌯ 𝐂ʟσsє ⌯", callback_data="close"),
+                ],
+            ]
+        )
+
+    def supreme_stats_markup(self) -> types.InlineKeyboardMarkup:
+        return self.ikm(
+            [
+                [
+                    self.ikb(text="𝐁ᴀᴄᴋ", callback_data="supreme_panel"),
+                    self.ikb(text="⌯ 𝐂ʟσsє ⌯", callback_data="close"),
+                ]
+            ]
+        )
+
     def queue_markup(self, chat_id: int, status: str, is_playing: bool) -> types.InlineKeyboardMarkup:
         return self.ikm(
             [
@@ -160,6 +188,10 @@ class Inline:
                 self.ikb(text="𝐔ᴘᴅᴧᴛє 𝐀ssɪsᴛᴧиᴛ", callback_data="edit_clone_assistant"),
             ] if is_premium else [
                 self.ikb(text="𝐆єᴛ 𝐏ʀєᴍɪυᴍ", callback_data="clone_premium"),
+            ],
+            [
+                self.ikb(text="𝐒тᴧᴛs", callback_data="clone_stats"),
+                self.ikb(text="𝐑єѕтᴧʀᴛ", callback_data="restart_clone"),
             ],
             [
                 self.ikb(text="𝐃єℓєᴛє 𝐂ℓσиє", callback_data="delete_clone"),

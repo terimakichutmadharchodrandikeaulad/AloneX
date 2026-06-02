@@ -34,6 +34,7 @@ rel_hist = {}
 
 @app.on_message(filters.command(["admincache", "reload"]) & filters.group & ~app.bl_users)
 @lang.language()
+@admin_check
 async def _admincache(client, m: types.Message):
     if m.from_user.id in rel_hist:
         if time.time() < rel_hist[m.from_user.id]:
