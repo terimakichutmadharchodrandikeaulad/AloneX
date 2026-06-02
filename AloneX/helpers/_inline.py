@@ -23,10 +23,10 @@ class Inline:
             kwargs.pop("style")
         return self._ikb(*args, **kwargs)
 
-    def start_key(self, lang: dict, private: bool = False) -> types.InlineKeyboardMarkup:
+    def start_key(self, lang: dict, username: str, private: bool = False) -> types.InlineKeyboardMarkup:
         rows = [
             [
-                self.ikb(text=lang["add_me"], url=f"https://t.me/{(config.BOT_TOKEN.split(':')[0])}?startgroup=true", style=ButtonStyle.SUCCESS),
+                self.ikb(text=lang["add_me"], url=f"https://t.me/{username}?startgroup=true", style=ButtonStyle.SUCCESS),
             ],
             [
                 self.ikb(text=lang["help"], callback_data="help_menu", style=ButtonStyle.PRIMARY),

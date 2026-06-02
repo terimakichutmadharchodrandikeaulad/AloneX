@@ -36,7 +36,7 @@ async def start(client, message: types.Message):
         else message.lang["start_gp"].format(client.name)
     )
 
-    key = buttons.start_key(message.lang, private)
+    key = buttons.start_key(message.lang, client.username, private)
     await message.reply_photo(
         photo=config.START_IMG,
         caption=_text,
